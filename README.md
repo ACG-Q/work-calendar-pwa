@@ -6,7 +6,7 @@
 
 <div align="center">
 
-![AI Badge](https://img.shields.io/badge/AI-Assisted-Development-blue?style=for-the-badge&logo=artificial-intelligence) ![PWA Badge](https://img.shields.io/badge/PWA-Ready-green?style=for-the-badge&logo=progressive-web-apps) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![AI Badge](https://img.shields.io/badge/AI-Powered-FF6B6B?style=for-the-badge&logo=ai&logoColor=white) ![PWA Badge](https://img.shields.io/badge/PWA-Ready-green?style=for-the-badge&logo=progressive-web-apps) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
 **一个现代化的智能任务日历应用，支持离线使用和 PWA 安装**
 
