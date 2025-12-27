@@ -10,17 +10,11 @@ const App = {
         this.loadTasks();
         this.renderCalendar();
         this.renderTasksList();
+        this.updateFilterButtons();
 
         const today = new Date();
         document.getElementById('taskDate').value = today.toISOString().split('T')[0];
         document.getElementById('taskTime').value = '09:00';
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
 
         this.customDialog = new CustomDialog();
 
@@ -111,7 +105,7 @@ const App = {
             'items-center',
             'justify-start',
             'border-2',
-            isToday ? 'gradient-primary text-white border-transparent shadow-lg' : 'border-white/30 bg-white/40',
+            isToday ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-transparent shadow-lg' : 'border-white/30 bg-white/40',
             !isCurrentMonth ? 'opacity-30' : '',
             dayTasks.length > 0 ? 'hover:border-primary/50' : 'hover:border-primary'
         ].join(' ');
@@ -257,18 +251,18 @@ const App = {
                     cancelText: '重新选择'
                 }
             );
-            
+
             if (!confirmed) {
                 return;
             }
         }
 
         try {
-            const taskData = { 
-                title, 
-                date, 
-                time, 
-                priority, 
+            const taskData = {
+                title,
+                date,
+                time,
+                priority,
                 description,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
@@ -278,25 +272,25 @@ const App = {
                 const index = this.tasks.findIndex(t => t.id === this.editingTaskId);
                 if (index !== -1) {
                     const originalTask = this.tasks[index];
-                    this.tasks[index] = { 
-                        ...taskData, 
+                    this.tasks[index] = {
+                        ...taskData,
                         id: this.editingTaskId,
                         createdAt: originalTask.createdAt || new Date().toISOString()
                     };
                 }
-                
+
                 this.saveTasks();
                 this.renderCalendar();
                 this.renderTasksList();
                 this.closeTaskModal();
                 this.customDialog.showSuccess('任务更新成功');
-                
+
             } else {
                 const newTask = {
                     ...taskData,
                     id: Date.now().toString()
                 };
-                
+
                 this.tasks.push(newTask);
                 this.saveTasks();
                 this.renderCalendar();
@@ -304,7 +298,7 @@ const App = {
                 this.closeTaskModal();
                 this.customDialog.showSuccess('任务创建成功');
             }
-            
+
         } catch (error) {
             console.error('保存任务时出错:', error);
             await this.customDialog.showError('保存失败，请重试');
@@ -314,9 +308,9 @@ const App = {
     async deleteTask(id) {
         const task = this.tasks.find(t => t.id === id);
         const taskName = task ? task.title : '任务';
-        
+
         const confirmed = await this.customDialog.showDeleteConfirm(taskName);
-        
+
         if (confirmed) {
             this.tasks = this.tasks.filter(t => t.id !== id);
             this.saveTasks();
@@ -328,7 +322,22 @@ const App = {
 
     filterTasks(priority) {
         this.currentFilter = priority;
+        this.updateFilterButtons();
         this.renderTasksList();
+    },
+
+    updateFilterButtons() {
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(button => {
+            const buttonPriority = button.getAttribute('data-filter');
+            if (buttonPriority === this.currentFilter) {
+                button.classList.add('bg-gradient-to-br', 'from-indigo-500', 'to-purple-600', 'text-white', 'border-transparent');
+                button.classList.remove('border-white/30', 'bg-white/30');
+            } else {
+                button.classList.remove('bg-gradient-to-br', 'from-indigo-500', 'to-purple-600', 'text-white', 'border-transparent');
+                button.classList.add('border-white/30', 'bg-white/30');
+            }
+        });
     },
 
     previousMonth() {
@@ -404,7 +413,7 @@ const App = {
                 cancelText: '取消'
             }
         );
-        
+
         if (confirmed) {
             this.tasks = [];
             this.saveTasks();

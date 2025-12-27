@@ -28,25 +28,26 @@
         "></div>
     </div>
 
-    <!-- 安装提示 -->
-    <div id="installPrompt" class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-2xl p-4 md:p-6 mb-4 md:mb-6 hidden animate-slide-down shadow-glass">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <div class="font-bold text-lg">🚀 安装应用</div>
-                <div class="text-sm text-gray-600 mt-1">将任务日历添加到主屏幕，随时随地访问</div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="App.dismissInstall()" class="px-4 py-2 rounded-xl bg-white/90 text-primary font-semibold transition hover:bg-white">
-                    稍后
-                </button>
-                <button onclick="App.installApp()" class="bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-2 rounded-xl text-white font-semibold shadow-lg transition hover:shadow-xl">
-                    安装
-                </button>
-            </div>
-        </div>
-    </div>
 
     <div class="container mx-auto max-w-7xl relative z-10">
+        <!-- 安装提示 -->
+        <div id="installPrompt" class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-2xl p-4 md:p-6 mb-4 md:mb-6 hidden animate-slide-down shadow-glass">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="font-bold text-lg">🚀 安装应用</div>
+                    <div class="text-sm text-gray-600 mt-1">将任务日历添加到主屏幕，随时随地访问</div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="App.dismissInstall()" class="px-4 py-2 rounded-xl bg-white/90 text-primary font-semibold transition hover:bg-white">
+                        稍后
+                    </button>
+                    <button onclick="App.installApp()" class="bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-2 rounded-xl text-white font-semibold shadow-lg transition hover:shadow-xl">
+                        安装
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 头部 -->
         <header class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 md:p-8 mb-6 md:mb-8 animate-slide-down flex flex-col sm:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-4">
@@ -107,16 +108,16 @@
                 
                 <!-- 筛选按钮 -->
                 <div class="flex flex-wrap gap-2 mb-6">
-                    <button onclick="App.filterTasks('all')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white active">
+                    <button onclick="App.filterTasks('all')" data-filter="all" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition">
                         全部
                     </button>
-                    <button onclick="App.filterTasks('high')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white">
+                    <button onclick="App.filterTasks('high')" data-filter="high" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition">
                         高优先级
                     </button>
-                    <button onclick="App.filterTasks('medium')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white">
+                    <button onclick="App.filterTasks('medium')" data-filter="medium" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition">
                         中优先级
                     </button>
-                    <button onclick="App.filterTasks('low')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white">
+                    <button onclick="App.filterTasks('low')" data-filter="low" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition">
                         低优先级
                     </button>
                 </div>
