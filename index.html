@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="智能任务日历PWA应用">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="favicon.svg">
+    <title>智能任务日历</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js" defer></script>
+    <script src="constants.js" defer></script>
+    <script src="validators.js" defer></script>
+    <script src="storage.js" defer></script>
+    <script src="dialog.js" defer></script>
+    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-400 min-h-screen bg-fixed p-4 md:p-6 relative overflow-x-hidden">
+    <!-- 动态背景 -->
+    <div class="fixed inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 pointer-events-none animate-drift opacity-70">
+        <div class="absolute w-full h-full" style="
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(138, 92, 246, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(240, 147, 251, 0.2) 0%, transparent 50%);
+        "></div>
+    </div>
+
+    <!-- 安装提示 -->
+    <div id="installPrompt" class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-2xl p-4 md:p-6 mb-4 md:mb-6 hidden animate-slide-down shadow-glass">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="font-bold text-lg">🚀 安装应用</div>
+                <div class="text-sm text-gray-600 mt-1">将任务日历添加到主屏幕，随时随地访问</div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="App.dismissInstall()" class="px-4 py-2 rounded-xl bg-white/90 text-primary font-semibold transition hover:bg-white">
+                    稍后
+                </button>
+                <button onclick="App.installApp()" class="bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-2 rounded-xl text-white font-semibold shadow-lg transition hover:shadow-xl">
+                    安装
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto max-w-7xl relative z-10">
+        <!-- 头部 -->
+        <header class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 md:p-8 mb-6 md:mb-8 animate-slide-down flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg animate-pulse-glow">
+                    📅
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">智能任务日历</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="App.openDataPanel()" class="btn-ripple px-4 py-3 rounded-xl bg-white/90 text-primary font-semibold flex items-center gap-2 transition hover:bg-white">
+                    💾
+                </button>
+                <button onclick="App.openTaskModal()" class="btn-ripple bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-3 rounded-xl text-white font-semibold shadow-lg flex items-center gap-2 transition hover:shadow-xl">
+                    ➕
+                </button>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+            <!-- 日历区域 -->
+            <div class="lg:col-span-2 backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 md:p-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                    <h2 id="currentMonthYear" class="text-2xl md:text-3xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent"></h2>
+                    <div class="flex items-center gap-3">
+                        <button onclick="App.previousMonth()" class="w-10 h-10 rounded-xl bg-white/50 flex items-center justify-center transition hover:bg-primary hover:text-white">
+                            ◀
+                        </button>
+                        <button onclick="App.goToToday()" class="px-4 py-2 rounded-xl bg-white/90 text-primary font-semibold transition hover:bg-white">
+                            今天
+                        </button>
+                        <button onclick="App.nextMonth()" class="w-10 h-10 rounded-xl bg-white/50 flex items-center justify-center transition hover:bg-primary hover:text-white">
+                            ▶
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 星期标题 -->
+                <div class="grid grid-cols-7 gap-2 mb-4">
+                    <div class="text-center py-3 text-primary font-bold text-sm">日</div>
+                    <div class="text-center py-3 text-primary font-bold text-sm">一</div>
+                    <div class="text-center py-3 text-primary font-bold text-sm">二</div>
+                    <div class="text-center py-3 text-primary font-bold text-sm">三</div>
+                    <div class="text-center py-3 text-primary font-bold text-sm">四</div>
+                    <div class="text-center py-3 text-primary font-bold text-sm">五</div>
+                    <div class="text-center py-3 text-primary font-bold text-sm">六</div>
+                </div>
+                
+                <!-- 日历格子 -->
+                <div id="calendar" class="grid grid-cols-7 gap-2"></div>
+            </div>
+
+            <!-- 任务列表区域 -->
+            <div class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl md:text-2xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">任务列表</h3>
+                </div>
+                
+                <!-- 筛选按钮 -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="App.filterTasks('all')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white active">
+                        全部
+                    </button>
+                    <button onclick="App.filterTasks('high')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white">
+                        高优先级
+                    </button>
+                    <button onclick="App.filterTasks('medium')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white">
+                        中优先级
+                    </button>
+                    <button onclick="App.filterTasks('low')" class="filter-btn px-4 py-2 rounded-full border-2 border-white/30 bg-white/30 font-semibold transition active:bg-gradient-to-br active:from-indigo-500 active:to-purple-600 active:text-white">
+                        低优先级
+                    </button>
+                </div>
+                
+                <!-- 任务列表 -->
+                <div id="tasksList" class="space-y-3 max-h-[500px] overflow-y-auto scrollbar-thin pr-2"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 任务模态框 -->
+    <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-2xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">新建任务</h3>
+                <button onclick="App.closeTaskModal()" class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 transition hover:bg-red-500 hover:text-white">
+                    ×
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">任务标题 *</label>
+                    <input id="taskTitle" type="text" placeholder="输入任务标题" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200/50 bg-white/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-2">日期 *</label>
+                        <input id="taskDate" type="date" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200/50 bg-white/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-2">时间 *</label>
+                        <input id="taskTime" type="time" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200/50 bg-white/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">优先级 *</label>
+                    <select id="taskPriority" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200/50 bg-white/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="low">低优先级</option>
+                        <option value="medium" selected>中优先级</option>
+                        <option value="high">高优先级</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-2">描述</label>
+                    <textarea id="taskDescription" placeholder="输入任务描述（可选）" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200/50 bg-white/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-8">
+                <button onclick="App.closeTaskModal()" class="flex-1 px-4 py-3 rounded-xl bg-white/90 text-primary font-semibold transition hover:bg-white">
+                    取消
+                </button>
+                <button onclick="App.saveTask()" class="flex-1 bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-3 rounded-xl text-white font-semibold shadow-lg transition hover:shadow-xl">
+                    💾 保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据管理模态框 -->
+    <div id="dataModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 w-full max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent">数据管理</h3>
+                <button onclick="App.closeDataPanel()" class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-500 transition hover:bg-red-500 hover:text-white">
+                    ×
+                </button>
+            </div>
+            
+            <div class="bg-gradient-to-br from-indigo-500/10 to-purple-600/10 p-5 rounded-2xl backdrop-blur-sm mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                    <span>📊 任务总数:</span>
+                    <strong id="taskCount" class="text-xl">0</strong>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>💾 数据大小:</span>
+                    <strong id="dataSize" class="text-xl">0 KB</strong>
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <button onclick="App.exportData()" class="w-full bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-4 rounded-xl text-white font-semibold shadow-lg flex items-center justify-center gap-2 transition hover:shadow-xl">
+                    📥 导出数据
+                </button>
+                
+                <button onclick="document.getElementById('importFile').click()" class="w-full px-4 py-4 rounded-xl bg-white/90 text-primary font-semibold flex items-center justify-center gap-2 transition hover:bg-white">
+                    📤 导入数据
+                </button>
+                
+                <input type="file" id="importFile" accept=".json" class="hidden" onchange="App.importData(event)">
+                
+                <button onclick="App.clearAllData()" class="w-full bg-gradient-to-r from-red-500 to-red-600 px-4 py-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2 transition hover:shadow-lg">
+                    🗑️ 清除所有数据
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 确认弹窗 -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 w-full max-w-md relative z-10 pointer-events-auto">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-4">
+                    ⚠️
+                </div>
+                <h3 id="confirmTitle" class="text-xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent mb-2">确认操作</h3>
+                <p id="confirmMessage" class="text-gray-600">确定要执行此操作吗？</p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button id="confirmCancel" class="flex-1 px-4 py-3 rounded-xl bg-white/90 text-gray-600 font-semibold transition hover:bg-white pointer-events-auto">
+                    取消
+                </button>
+                <button id="confirmOk" class="flex-1 bg-gradient-to-br from-indigo-500 to-purple-600 px-4 py-3 rounded-xl text-white font-semibold shadow-lg transition hover:shadow-xl pointer-events-auto">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功提示弹窗 -->
+    <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="backdrop-blur-xl bg-white/70 border border-white/30 rounded-3xl p-6 w-full max-w-md relative z-10 pointer-events-auto">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500 rounded-2xl flex items-center justify-center text-2xl text-white mx-auto mb-4">
+                    ✅
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">操作成功</h3>
+                <p id="successMessage" class="text-gray-600 mb-6">操作已成功完成</p>
+                <button onclick="App.customDialog.hideSuccessModal()" class="w-full bg-gradient-to-r from-green-400 to-green-500 px-4 py-3 rounded-xl text-white font-semibold shadow-lg transition hover:shadow-xl pointer-events-auto">
+                    好的
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 状态指示器 -->
+    <div id="statusIndicator" class="fixed bottom-4 right-4 backdrop-blur-xl bg-white/70 border border-white/30 rounded-xl p-3 flex items-center gap-2 shadow-glass hidden animate-slide-up z-[99]">
+        <div id="statusDot" class="w-3 h-3 rounded-full bg-success animate-pulse"></div>
+        <span id="statusText" class="font-semibold text-sm">在线</span>
+    </div>
+</body>
+</html>
